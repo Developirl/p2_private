@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+    PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.fo_enterprise.mybatis.mapper.MypageMainMapper">
+
+	<!-- 회원 정보 중 이름, 전화번호, 이메일, 포지션 제안 수락여부 -->
+	<select id="getMbrInfo">
+		SELECT mbr_name, mbr_mp, mbr_eml_adrs, pstn_prpsl_accept_yn
+		FROM p2_tbl_member_m
+		WHERE
+			mbr_sq = #{mbr_sq}
+	</select>
+	
+	<!-- 이력서 중 대표 이력서 이력서 순번, 이력서 제목, 등록일시, 최종 수정일시, 이미지 -->
+	<select id="getRprsntvRsmInfo">
+		SELECT rsm_sq, rsm_tl, insrt_dtm, updt_dtm, rsm_img_file_url
+		FROM p2_tbl_resume_m
+		WHERE 
+			mbr_sq = #{mbr_sq}
+			AND
+			rsm_rprsntv_yn = 'Y'
+	</select>
+	
+	<!--
+	카사디안 곱 결과물 만들고 where절 비교할듯.. 즉 성능면에서 더 떨어질 듯...
+	<select>
+	    SELECT 
+	        m.mbr_name, m.mbr_mp, m.mbr_eml_adrs, m.pstn_prpsl_accept_yn, r.rsm_sq, r.rsm_tl, r.insrt_dtm, r.updt_dtm, r.rsm_img_file_rul
+	    FROM 
+	        p2_tbl_member_m m
+	    	LEFT JOIN p2_tbl_resume_m r ON m.mbr_sq = r.mbr_sq AND r.rsm_rprsntv_yn = 'Y'
+	    WHERE
+	        m.mbr_sq = #{mbr_sq}
+	</select>
+	-->
+	
+	<!--대표 이력서 -> 지원 테이블에서 각 상태별 데이터 개수 가지고 오기(미열람:401, 열람:402, 면접대기:405, 면접완료:406, 합격:407, 불합격:408) -->
+	<select id="getEachCndtnApplyCount">
+		SELECT apy_cndtn, COUNT(*)
+		FROM p2_tbl_apply_h
+		WHERE
+			rsm_sq = #{rsm_sq}
+		GROUP BY apy_cndtn
+	</select>
+	
+	<!-- 등록한 이력서 개수(rsm_cnt), 스크랩한 공고 개수(scrap_cnt), 포지션 제안 받은 개수(대가 상태(301)인 제안)(prpsl_cnt), (추후 AI추천 공고 개수) -->
+	<select id="getMyState">
+		SELECT
+			(SELECT COUNT(*) FROM p2_tbl_resume_m WHERE mbr_sq = #{mbr_sq} AND use_yn = 'Y') rsm_cnt,
+			(SELECT COUNT(*) FROM p2_tbl_scrap_s WHERE mbr_sq = #{mbr_sq}) scrap_cnt,
+			(SELECT COUNT(*) FROM p2_tbl_position_proposal_m WHERE rsm_sq = #{rsm_sq} AND pstn_prpsl_cndtn = 301) prpsl_cnt
+		FROM dual
+	</select>
+	<!--
+	월별 스크랩한 공고 마감일자 : S
+	월별 면접일자 면접대기(405) I
+	웗별 제안 받은 포지션 대기 상태일 때 마감 일자 PP
+	월별 지원 공고 데이터 AC
+	s.mbr_sq = #{mbr_sq} 서브쿼리로 빼서 필터링 한다음 조인하는게 좋을까?--> 
+	<select id="getToMakeCalendarData">
+		SELECT "S" tbl_type, j.jbp_sq, j.jbp_tl, j.regstr_dln_dtm as dtm
+		FROM p2_tbl_scrap_s s,
+			 p2_tbl_job_posting_m j
+		WHERE
+			s.mbr_sq = #{mbr_sq}
+			AND
+			s.jbp_sq = j.jbp_sq
+			AND
+			MONTH(j.regstr_dln_dtm) = #{month}
+		UNION
+		SELECT "I" tbl_type, j.jbp_sq, j.jbp_tl, a.intv_dtm as dtm
+		FROM p2_tbl_apply_h a,
+			 p2_tbl_job_posting_m j
+		WHERE
+			a.rsm_sq = #{rsm_sq}
+			AND
+			apy_cndtn = 405
+			AND
+			MONTH(intv_dtm) = #{month}
+		UNION
+		SELECT "PP" tbl_type, j.jbp_sq, j.jbp_tl, j.regstr_dln_dtm as dtm
+		FROM p2_tbl_position_proposal_m p,
+			 p2_tbl_job_posting_m j
+		WHERE 
+			p.rsm_sq=#{rsm_sq}
+			AND
+			MONTH(j.regstr_dln_dtm) = #{month}
+		UNION
+		SELECT  "AC" tbl_type, j.jbp_sq, j.jbp_tl, a.apy_dtm as dtm
+		FROM p2_tbl_apply_h a,
+			 p2_tbl_job_posting_m j
+		WHERE
+			a.rsm_sq IN (SELECT rsm_sq FROM p2_tbl_resume_m WHERE mbr_sq = #{mbr_sq})
+			AND
+			MONTH(a.apy_dtm) = #{month}
+	</select>  
+
+</mapper>

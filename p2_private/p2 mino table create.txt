@@ -1,0 +1,105 @@
+지역-회원관계, 직업-회원 관계, 지역코드, 포지션제안, 제안내용
+
+*********************************************************테이블생성********************************************************************
+/*포지션 제안 테이블 생성*/
+CREATE TABLE `P2_TBL_POSITION_PROPOSAL_M` (
+	`pstn_prpsl_sq`	BIGINT	NOT NULL AUTO_INCREMENT,
+	`jbp_sq`	INT	NOT NULL,
+	`rsm_sq`	INT	NOT NULL,
+	`prpsl_dtm`	DATETIME	NOT NULL	DEFAULT CURRENT_TIMESTAMP,
+	`pstn_prpsl_cndtn`	INT	NOT NULL	DEFAULT 301,
+	`insrt_mbr_sq`	INT	NOT NULL	DEFAULT 1,
+	`insrt_dtm`	DATETIME	NOT NULL	DEFAULT CURRENT_TIMESTAMP,
+	`updt_mbr_sq`	INT	NULL,
+	`updt_dtm`	DATETIME	NULL,
+	`dlt_yn`	CHAR(1)	NOT NULL	DEFAULT 'N',
+	`use_yn`	CHAR(1)	NOT NULL	DEFAULT 'Y',
+	PRIMARY KEY(pstn_prpsl_sq)
+);
+
+/*지역 코드 테이블 생성*/
+CREATE TABLE `P2_TBL_AREA_CODE_S` (
+	`area_sq`	INT	NOT NULL,
+	`area_name`	VARCHAR(20)	NOT NULL,
+	`prnt_area_sq`	INT	NULL,
+	`insrt_mbr_sq`	INT	NOT NULL	DEFAULT 1,
+	`insrt_dtm`	DATETIME	NOT NULL	DEFAULT CURRENT_TIMESTAMP,
+	`updt_mbr_sq`	int	NULL,
+	`updt_dtm`	DATETIME	NULL,
+	`dlt_yn`	CHAR(1)	NOT NULL	DEFAULT 'N',
+	`use_yn`	CHAR(1)	NOT NULL	DEFAULT 'Y',
+	PRIMARY KEY(area_sq)
+);
+
+/*제안 내용 테이블 생성*/
+CREATE TABLE `P2_TBL_PROPOSAL_CONTENT_S` (
+	`jbp_sq`	INT	NOT NULL,
+	`prpsl_cntnt`	TINYTEXT	NULL
+);
+
+/*지역-회원 관계 테이블 생성*/
+CREATE TABLE `P2_TBL_AREA_MEMBER_R` (
+	`mbr_sq`	INT	NOT NULL,
+	`area_sq`	INT	NOT NULL
+);
+
+/*직업-회원 관계 테이블 생성*/
+CREATE TABLE `P2_TBL_JOB_MEMBER_R` (
+	`mbr_sq`	INT	NOT NULL,
+	`job_sq`	INT	NOT NULL
+);
+
+*********************************************************제약조건********************************************************************
+
+/*포지션제안-공고 관계*/
+ALTER TABLE `P2_TBL_POSITION_PROPOSAL_M` ADD CONSTRAINT `FK_P2_TBL_JOB_POSTING_M_TO_P2_TBL_POSITION_PROPOSAL_M_1` FOREIGN KEY (
+	`jbp_sq`
+)
+REFERENCES `P2_TBL_JOB_POSTING_M` (
+	`jbp_sq`
+);
+/*포지션제안-이력서 관계*/
+ALTER TABLE `P2_TBL_POSITION_PROPOSAL_M` ADD CONSTRAINT `FK_P2_TBL_RESUME_M_TO_P2_TBL_POSITION_PROPOSAL_M_1` FOREIGN KEY (
+	`rsm_sq`	
+)
+REFERENCES `P2_TBL_RESUME_M` (
+	`rsm_sq`	
+);
+/*제안 내용-공고 관계*/
+ALTER TABLE `P2_TBL_PROPOSAL_CONTENT_S` ADD CONSTRAINT `FK_P2_TBL_JOB_POSTING_M_TO_P2_TBL_PROPOSAL_CONTENT_S_1` FOREIGN KEY (
+	`jbp_sq`
+)
+REFERENCES `P2_TBL_JOB_POSTING_M` (
+	`jbp_sq`
+);
+/*지역회원관계-멤버 관계*/
+ALTER TABLE `P2_TBL_AREA_MEMBER_R` ADD CONSTRAINT `FK_P2_TBL_MEMBER_M_TO_P2_TBL_AREA_MEMBER_R_1` FOREIGN KEY (
+	`mbr_sq`	
+)
+REFERENCES `P2_TBL_MEMBER_M` (
+	`mbr_sq`	
+);
+/*지역회원관계-지역코드 관계*/
+ALTER TABLE `P2_TBL_AREA_MEMBER_R` ADD CONSTRAINT `FK_P2_TBL_AREA_CODE_S_TO_P2_TBL_AREA_MEMBER_R_1` FOREIGN KEY (
+	`area_sq`	
+)
+REFERENCES `P2_TBL_AREA_CODE_S` (
+	`area_sq`	
+);
+/*직업회원관계-멤버 관계*/
+ALTER TABLE `P2_TBL_JOB_MEMBER_R` ADD CONSTRAINT `FK_P2_TBL_MEMBER_M_TO_P2_TBL_JOB_MEMBER_R_1` FOREIGN KEY (
+	`mbr_sq`	
+)
+REFERENCES `P2_TBL_MEMBER_M` (
+	`mbr_sq`	
+);
+/*직업회원관계-직업코드 관계*/
+ALTER TABLE `P2_TBL_JOB_MEMBER_R` ADD CONSTRAINT `FK_P2_TBL_JOB_CODE_S_TO_P2_TBL_JOB_MEMBER_R_1` FOREIGN KEY (
+	`job_sq`	
+)
+REFERENCES `P2_TBL_AREA_CODE_S` (
+	`job_sq`	
+);
+
+
+
