@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-P2PrivateApplication<p2_private>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.demo.P2PrivateApplication",
+            "projectName": "p2_private",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
