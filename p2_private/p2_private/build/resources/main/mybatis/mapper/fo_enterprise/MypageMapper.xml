@@ -128,7 +128,7 @@
 
 	<!-- 포지션 제안 수락 여부 변경 -->
 	<update id="updatePstnPrpslAcceptYN">
-		UPDATE p2_tbl_member_m SET pstn_prpsl_accept_yn = #{pstn_prpsl_accept_yn} WHERE mbr_sq = #{mbr_sq}
+		UPDATE INTO p2_tbl_member_m SET pstn_prpsl_accept_yn = #{pstn_prpsl_accept_yn} WHERE mbr_sq = #{mbr_sq}
 	</update>
 
 	<!-- 지역 코드 정보 -->
@@ -178,6 +178,8 @@
 			(#{mbr_sq}, #{job})
 		</foreach>
 	</insert>
+
+
 
 	<!-- @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@마이페이지 포지션제안 받기 화면END@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ -->
 

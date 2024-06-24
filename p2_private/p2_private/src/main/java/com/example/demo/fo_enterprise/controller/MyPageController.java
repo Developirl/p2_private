@@ -6,15 +6,15 @@ import java.util.Map;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.fo_enterprise.service.MyPageService;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 
 
 
@@ -30,7 +30,6 @@ public class MyPageController {
 	//jwt 구현 전 까지 클라에서 mbr_sq 같이 넘겨주는 걸로!
 	@GetMapping("/main")
 	public ResponseEntity<Map<String, Object>> getMainData(@RequestParam("mbr_sq") int mbr_sq, @RequestParam("month") int month) {
-		
 		return ResponseEntity.ok(myPageService.getMyPageMainData(mbr_sq, month));
 	}
 
@@ -44,30 +43,22 @@ public class MyPageController {
 	//마이페이지 포지션 제안 받기 화면 데이터(대표이력서, 제안 수락 여부, 선택했던 지역&직업 + 지역&직업 데이터)
 	@GetMapping("/ppAcception")
 	public ResponseEntity<Map<String, Object>> getPosionProposalData(@RequestParam("mbr_sq") int mbr_sq) {
-		Map<String, Object> response = myPageService.getPosionProposalData(mbr_sq);
-
-		//지역&직업 데이터
-		response.put("areaCodes", myPageService.getAreaCodes());
-		response.put("jobCodes", myPageService.getJobCodes());
-
-		return ResponseEntity.ok(response);
+		return ResponseEntity.ok(myPageService.getPosionProposalData(mbr_sq));
 	}
 
 	//포지션 제안받기 상태 변경
 	@PutMapping("/ppAcception/{ppyn}")
 	public int putMethodName(@RequestParam("mbr_sq") int mbr_sq, @PathVariable char ppyn) {
-		int result = myPageService.updatePstnPrpslAcceptYN(mbr_sq, ppyn);
-		return result;
+		return myPageService.updatePstnPrpslAcceptYN(mbr_sq, ppyn);
 	}
 
-
+	//포지션 제안 받기 설정 후 원하는 지역, 직종 선택 -> 기존 데이터 삭제 후 재입력
 	@PostMapping("/ppAcception")
 	@SuppressWarnings("unchecked")
 	public int postMethodName(@RequestParam("mbr_sq") int mbr_sq, @RequestBody Map<String, Object> areaAndJobLists) {
 		List<Integer> areaList = (List<Integer>)areaAndJobLists.get("areaList");
 		List<Integer> jobList = (List<Integer>)areaAndJobLists.get("jobList");
-		int result = myPageService.insertSelectAreasAndJobs(mbr_sq, areaList, jobList);
-		return result;
+		return myPageService.insertSelectAreasAndJobs(mbr_sq, areaList, jobList);
 	}
 	
 	
